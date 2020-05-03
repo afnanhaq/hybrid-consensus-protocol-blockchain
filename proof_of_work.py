@@ -15,9 +15,6 @@ def proof_of_work_algo(last_hash, sha_signature):
 
          - Find a number p' such that hash(pp') contains leading 4 zeroes
          - Where p is the previous proof, and p' is the new proof
-         
-        :param last_block: <dict> last Block
-        :return: <int>
         """
 
         proof = 0
@@ -29,8 +26,6 @@ def proof_of_work_algo(last_hash, sha_signature):
 def valid_proof(last_hash, proof, sha_signature):
         """
         Validates the Proof
-        :param proof: <int> Current Proof
-        :param last_hash: <str> The hash of the Previous Block
         :return: <bool> True if correct, False if not.
         """
 
