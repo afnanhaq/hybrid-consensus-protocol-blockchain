@@ -8,13 +8,25 @@ class ValidatorList:
     def get_validators(self):
         return self.validators
 
-    def add_validator(self, validator):
-        self.validators.append(validator)
-        self.total_weight += validator.weight
+    def add_validator(self, name, owl_coins_staked):
+        if owl_coins_staked > 50:
+            print("Too many owl coins staked by", name)
+            return
+        new_validator = Validator(name, owl_coins_staked, 1)
+        print("Validator with the name",new_validator.name,"has been added")
+        self.validators.append(new_validator)
 
-    def pick_winner(self):
+    def pick_winners(self):
         #weighted random based on amount staked (weight) and age
         #add parameters here???
-        value = choices(self.validators, [self.validators[i].weight * (0.5 * self.validators[i].age)
-                                          for i in range(len(self.validators))],k=1)
-        return value
+        while True:
+        #this While loop exists because choices() can do repeats
+            validators = choices(self.validators, [validator.owl_coins_staked
+                                              * (0.5 * validator.coin_age)
+                                              for validator in self.validators],k=5)
+            repeats = 0
+            for elem in validators:
+                if validators.count(elem) > 1:
+                    repeats += 1
+            if repeats == 0:
+                return ValidatorList(validators)

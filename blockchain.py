@@ -5,11 +5,10 @@ from hashlib import sha256
 from random import randint, choices
 
 """
-THINGS TO DO
+THINGS TO DO (FROM BEFORE OUR DISCUSSION TODAY)
 1. Increment the age by day for each new block added
 2. Actually add the block if there is consensus using the Block class
 3. Voting mechanism/Vote class
-4. "Printing" the blockchain if someone wants to see it
 5. Slashing a person if they vote twice
 6. self.current_block has to empty list after build_new_block is called
 7. add parameters for age and weight in pick_winners() in ValidatorList
@@ -26,20 +25,34 @@ from proof_of_stake import *
 from list_of_all_validators import *
 from block import *
 from vote import *
+from miner import *
+from list_of_all_miners import *
 
 #BLOCKCHAIN CLASS
 class Blockchain:
-    def __init__(self, validators):
+    def __init__(self, validators, miners):
+        print("We are starting at block 4096")
         self.blockchain = []
         self.current_block = []
         self.validator_list = validators
+        self.miner_list = miners
+        self.block_reward = 50
 
+    def update_block_reward_if_needed(self):
+        if len(self) % 24 == 0:
+            self.block_reward += 6
+        
     def last_block_hash(self):
         #means blockchain is empty
         if len(self) == 0:
             return ""
         else:
             return self.blockchain[-1].getHash()
+
+    def __repr__(self):
+        print("The blockchain is built as follows:")
+        for block in blockchain:
+            print(block)       
 
     def __len__(self):
         return len(self.blockchain)
@@ -49,24 +62,55 @@ class Blockchain:
         self.validator_list.add_validator(validator)
 
     def build_new_block(self):
-        #1. pick a new winner from ValidatorList
-        winner = (self.validator_list.pick_winner())[0]
-        print("Congratulations! The winner is", winner.name)
-        #2. create a hash
+        #1. pick 5 validators from ValidatorList
+        validators = self.validator_list.pick_winners()
+        print("Congratulations! The validators for this round are:")
+        for validator in validators.get_validators():
+            print(validator.getName(), end=", ")
+        print()
+        #2. pick 10 miners from MinerList
+        miners = self.miner_list.pick_winners()
+        print("Congratulations! The miners for this round are: ")
+        for miner in miners.get_miners():
+            print(miner.getName(), end = ", ")
+        print()
+        #3. create a hash
         if len(self.blockchain) == 0:
             new_hash = create_hash("" + "".join(self.current_block))
         else:
             new_hash = create_hash(self.blockchain[-1].getHash() + "".join(self.current_block))
-        #3. make winner mine the block
-        proof = winner.mine(self.last_block_hash(), new_hash)
-        #4. broadcast the block and get everyone to check it
-        print("The broadcasted proof of work is",proof)
+        #EVERYTHING BELOW IS MOSTLY FOR U TO DO
+        print("Now the miners are mining...")
+        #4. make "ALL" the miners mine the block
+        queue = miners.mine(self.last_block_hash(), new_hash)
+        #5. put the winners in a queue somehow
+        print("The broadcasted proof of work by the miner x is",queue) #the broadcasted proof of work by x is proof
+        #6. make the five random validators check the proof
+        
+        #write while loop like while length of queue != 0 like a while/else statement
+        #break if consensus is reached so the else doesnt run. and the else just contains the slashing all of them
         block_has_consensus = broadcastBlock(self.validator_list.get_validators(),self.last_block_hash(), new_hash, proof)
-        #5. check consensus of block
+        #7. check consensus of block
+        #8. if 3 yes 2 no, it passes, block reward is shared by 3 and 2 no's gets slashed. if 2 yes 3 no, 2 yes's lose 0.6% of their block reward. Continues till there is consensus
         if block_has_consensus:
             print("This block was added")
+            #7. Add the block or reject the block using the block class and then appending it to self.blockchain
+            #9. block reward time, 60%, 30% (6% each validator max), 10%
+            
+            #10. update block reward if needed, I TOOK CARE OF THIS
+            self.update_block_reward_if_needed()
         else:
-            print("This block was not added")
+            #8. start all over again and slash all five validators when queue is empty
+            print("This block was not added as all miners failed")
+        #11. remove age parameters from calculations for all participants, I ALSO TOOK CARE OF THIS 
+            self.reset_ages(miners, validators)
+
+
+    def reset_ages(miners, validators):
+        for miner in miners:
+            miner.reset_age()
+        for validator in validators:
+            validator.reset_age()
 
     def add_value(self, value):
         #add value to new block
@@ -78,38 +122,27 @@ class Blockchain:
             self.build_new_block()
 
 #users_data will contain a list of tuples as shown in the main() function
-def build_list_of_validators(users_data):
+def build_list_of_validators(data):
     validator_list = []
-    for user in users_data:
-        validator = Validator(user[0], user[1])
+    for user in data:
+        if len(user) == 2:
+            validator = Validator(user[0], user[1])
+        else:
+            validator = Validator(user[0], user[1], user[2])
         validator_list.append(validator)
     return validator_list
 
-#MAIN
-def main():
-    initial_users = [
-        ("Afnan", 22, 3),
-        ("David", 13),
-        ("Monplaisir", 17, 1),
-        ("Claudia", 25, 1),
-        ("Adam", 33, 1),
-        ("James", 26, 2),
-        ("Mercury", 22, 1),
-        ("Hope", 12, 2),
-        ("John", 29, 4),
-        ("Jacob", 18, 2),
-        ("Jesus", 20,4)
-        ]
-    validator_list = build_list_of_validators(initial_users)
-    blockchain_validators = ValidatorList(validator_list)
-    my_blockchain = Blockchain(blockchain_validators)    
-    my_blockchain.add_value(5)
-    my_blockchain.add_value(3)
-    my_blockchain.add_value(13)
-    my_blockchain.add_value(17)
-    my_blockchain.add_value(13)
-    
-main()
+def build_list_of_miners(data):
+    miner_list = []
+    for user in data:
+        if len(user) == 2:
+            miner = Miner(user[0], user[1])
+        else:
+            miner = Miner(user[0], user[1], user[2])
+        miner_list.append(miner)
+    return miner_list
+
+
     
 
 

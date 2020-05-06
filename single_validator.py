@@ -3,14 +3,13 @@ from random import randint
 from parameters import *
 
 class Validator:
-    def __init__(self, name, weight, age = 1):
+    def __init__(self, name, owl_coins_staked, coin_age = 1):
         self.name = name
-        self.weight = weight
-        self.age = age
-
-    def mine(self, last_hash, sha_signature):
-        #gets that specific person to mine using proof of work algorithm
-        return proof_of_work_algo(last_hash, sha_signature)
+        self.owl_coins_staked = owl_coins_staked
+        self.coin_age = coin_age
+        
+    def getName(self):
+        return self.name
 
     def vote_proof(self, last_hash, new_hash, proof):
         #a random reading for the simulation of what should happen
@@ -21,10 +20,12 @@ class Validator:
             self.weight -= 5
             print(self.name,"has lost 5 units as punishment")
             return ("offline")
-        elif chance_a_validator_is_offline < value <= (chance_a_validator_is_offline + chance_a_validator_lies):
+        elif chance_a_validator_is_offline < value <= (chance_a_validator_is_offline + chance_a_validator_rejects):
             print(self.name,"says no")
             return ("no")
         else:
             print(self.name,"says yes")
             return ("yes") 
 
+    def reset_age(self):
+        self.coin_age = 1
