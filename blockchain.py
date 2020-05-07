@@ -101,7 +101,7 @@ class Blockchain:
             self.update_block_reward_if_needed()
         else:
             #8. start all over again and slash all five validators when queue is empty
-            print("This block was not added as all miners failed")
+            print("This block was not added. We are starting over ")
         #11. remove age parameters from calculations for all participants, I ALSO TOOK CARE OF THIS 
             self.reset_ages(miners, validators)
 
