@@ -32,3 +32,5 @@ def valid_proof(last_hash, proof, sha_signature):
         guess = (last_hash + proof + sha_signature).encode()
         guess_hash = sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
+    
+print(create_hash('BLALAksdlaksmdlkasmldkamslkdmalksmdlkasmdlsmdlaksmdlka'))

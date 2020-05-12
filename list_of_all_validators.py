@@ -4,6 +4,9 @@ class ValidatorList:
     #validators will be a list of Validator objects
     def __init__(self, validators):
         self.validators = validators
+    
+    def __len__(self):
+        return len(self.validators)
 
     def get_validators(self):
         return self.validators
@@ -30,3 +33,7 @@ class ValidatorList:
                     repeats += 1
             if repeats == 0:
                 return ValidatorList(validators)
+            
+    def reset_age(self):
+        for validator in self.validators:
+            validator.reset_age_single()

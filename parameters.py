@@ -2,7 +2,9 @@
 chance_a_validator_is_offline = 5
 chance_a_validator_rejects = 15
 chance_a_validator_validates = 100 - (chance_a_validator_rejects + chance_a_validator_is_offline)
-transactions_per_block = 5
+amount_transactions_per_block = 5
+chance_a_miner_gets_wrong_hash_for_block = 5
+chance_proof_of_work_incorrect_but_validator_say_yes = 5
 
 #Initial validator list
 initial_validators = [
